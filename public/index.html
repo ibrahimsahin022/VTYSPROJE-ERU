@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Ana Sayfa — Kariyer Sağlık</title>
+  <link rel="stylesheet" href="/styles.css"/>
+  <style>
+    .wrap-narrow{max-width:720px;margin:0 auto}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .grid-1{display:grid;grid-template-columns:1fr;gap:12px}
+    label{font-size:12px;color:#9BB1DA;margin-bottom:4px;display:block}
+    input{width:100%;background:#0b1430;color:#EAF1FF;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px}
+    .or{display:flex;align-items:center;gap:10px;margin:12px 0}
+    .or:before,.or:after{content:"";height:1px;background:rgba(255,255,255,.12);flex:1}
+    .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .prov{display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px;background:#0e1734;text-decoration:none;color:#EAF1FF}
+    .muted{color:#9BB1DA}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  </style>
+</head>
+<body>
+  <div class="wrap wrap-narrow">
+    <div class="nav">
+      <div class="brand">💼 Kariyer Sağlık</div>
+      <div class="sp"></div>
+
+    </div>
+
+    <section class="hero">
+      <div class="hero-in">
+        <h1>Hoş geldin</h1>
+        <p>Giriş yap, profilini güncelle ve analizleri başlat.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Giriş Yap</h3>
+      <form id="loginForm" class="grid">
+        <div>
+          <label for="loginEmail">E-posta</label>
+          <input id="loginEmail" type="email" placeholder="ornek@posta.com" required>
+        </div>
+        <div>
+          <label for="loginPassword">Şifre</label>
+          <input id="loginPassword" type="password" placeholder="••••••" required>
+        </div>
+        <div class="grid-1">
+          <div class="row">
+            <button id="btnLogin" class="btn">Giriş Yap</button>
+            <!-- 🔹 Şifreni mi unuttun? -->
+            <a class="small muted" href="/forgot-password.html">Şifreni mi unuttun?</a>
+          </div>
+          <div id="loginMsg" class="small muted"></div>
+        </div>
+      </form>
+
+      <div class="or"><span class="small muted">veya</span></div>
+
+      <div class="providers">
+        <a class="prov" href="/oauth/google">🔵 Google ile Devam Et</a>
+        <a class="prov" href="/oauth/github">⚫ GitHub ile Devam Et</a>
+      </div>
+
+      <p class="small muted" style="margin-top:12px">
+        Hesabın yok mu? <a href="/register.html">Kayıt ol</a>
+      </p>
+    </section>
+  </div>
+
+  <script>
+    const $ = s => document.querySelector(s);
+    const msg = $('#loginMsg');
+
+    document.getElementById('btnLogin').onclick = async (e) => {
+      e.preventDefault();
+      msg.textContent = 'Giriş yapılıyor...';
+      const email = $('#loginEmail').value.trim();
+      const password = $('#loginPassword').value.trim();
+
+      try {
+        const r = await fetch('/auth/login', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ email, password })
+        });
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.message || 'Giriş başarısız');
+
+        if (j.token) localStorage.setItem('token', j.token);
+        window.location.href = '/profile.html';
+      } catch (err) {
+        msg.textContent = 'Hata: ' + (err.message || 'Giriş başarısız');
+      }
+    };
+  </script>
+</body>
+</html>
