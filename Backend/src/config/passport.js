@@ -35,36 +35,40 @@ async function upsertUser(provider, profile) {
 }
 
 
-passport.use(new LinkedInStrategy({
-    clientID: process.env.LINKEDIN_CLIENT_ID,
-    clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
-    callbackURL: `${BASE}/auth/linkedin/callback`,
-    scope: ['r_emailaddress', 'r_liteprofile'],
-    state: true
-}, async (_at, _rt, profile, done) => {
-    try { return done(null, { token: await upsertUser('linkedin', profile) }); }
-    catch (e) { return done(e); }
-}));
+if (process.env.LINKEDIN_CLIENT_ID && process.env.LINKEDIN_CLIENT_SECRET) {
+    passport.use(new LinkedInStrategy({
+        clientID: process.env.LINKEDIN_CLIENT_ID,
+        clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
+        callbackURL: `${BASE}/auth/linkedin/callback`,
+        scope: ['r_emailaddress', 'r_liteprofile'],
+        state: true
+    }, async (_at, _rt, profile, done) => {
+        try { return done(null, { token: await upsertUser('linkedin', profile) }); }
+        catch (e) { return done(e); }
+    }));
+}
 
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    passport.use(new GoogleStrategy({
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: `${BASE}/auth/google/callback`
+    }, async (_at, _rt, profile, done) => {
+        try { return done(null, { token: await upsertUser('google', profile) }); }
+        catch (e) { return done(e); }
+    }));
+}
 
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: `${BASE}/auth/google/callback`
-}, async (_at, _rt, profile, done) => {
-    try { return done(null, { token: await upsertUser('google', profile) }); }
-    catch (e) { return done(e); }
-}));
-
-
-passport.use(new GitHubStrategy({
-    clientID: process.env.GITHUB_CLIENT_ID,
-    clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    callbackURL: `${BASE}/auth/github/callback`,
-    scope: ['user:email']
-}, async (_at, _rt, profile, done) => {
-    try { return done(null, { token: await upsertUser('github', profile) }); }
-    catch (e) { return done(e); }
-}));
+if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
+    passport.use(new GitHubStrategy({
+        clientID: process.env.GITHUB_CLIENT_ID,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET,
+        callbackURL: `${BASE}/auth/github/callback`,
+        scope: ['user:email']
+    }, async (_at, _rt, profile, done) => {
+        try { return done(null, { token: await upsertUser('github', profile) }); }
+        catch (e) { return done(e); }
+    }));
+}
 
 module.exports = passport;
